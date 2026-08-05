@@ -1,4 +1,0 @@
-INFO     root:base_page.py:29 Typed into element: ('id', 'user-name')
-INFO     root:base_page.py:29 Typed into element: ('id', 'password')
-INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
-INFO     root:base_page.py:35 Read text 'Epic sadface: Sorry, this user has been locked out.' from element: ('css selector', "h3[data-test='error']")

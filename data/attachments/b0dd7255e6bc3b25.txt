@@ -1,0 +1,5 @@
+INFO     root:base_page.py:42 Typed into element: ('id', 'user-name')
+INFO     root:base_page.py:42 Typed into element: ('id', 'password')
+INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
+INFO     root:base_page.py:34 Clicked (via JS) element: ('id', 'react-burger-menu-btn')
+INFO     root:base_page.py:34 Clicked (via JS) element: ('id', 'logout_sidebar_link')
