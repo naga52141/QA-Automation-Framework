@@ -1,6 +1,10 @@
 # QA Automation Framework
 
+[![Tests](https://github.com/naga52141/QA-Automation-Framework/actions/workflows/tests.yml/badge.svg)](https://github.com/naga52141/QA-Automation-Framework/actions/workflows/tests.yml)
+
 Selenium + pytest UI test automation framework for [saucedemo.com](https://www.saucedemo.com/), built with the Page Object Model.
+
+**[Live Allure report →](https://naga52141.github.io/QA-Automation-Framework/)** — updated on every push to `main`, with trend history across runs.
 
 ## Structure
 

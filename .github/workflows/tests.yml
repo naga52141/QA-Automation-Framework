@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -41,9 +44,31 @@ jobs:
           mkdir -p reports screenshots allure-results
           pytest -n auto -v --html=reports/report.html --self-contained-html --alluredir=allure-results
 
+      - name: Fetch previous Allure history
+        if: always()
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Carry history into this run's results
+        if: always()
+        run: |
+          mkdir -p allure-results/history
+          cp -r gh-pages/history/. allure-results/history/ 2>/dev/null || true
+
       - name: Generate Allure report
         if: always()
         run: allure generate allure-results -o allure-report --clean
+
+      - name: Publish Allure report to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-report
 
       - name: Upload test report
         if: always()
