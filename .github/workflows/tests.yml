@@ -44,6 +44,26 @@ jobs:
           mkdir -p reports screenshots allure-results
           pytest -n auto -v --html=reports/report.html --self-contained-html --alluredir=allure-results
 
+      - name: Commit auto-generated visual-regression baselines, if any
+        # Baselines must be captured on this same Linux CI environment to
+        # be a meaningful comparison target -- a macOS-captured baseline
+        # produced large false-positive diffs against Linux's font
+        # rendering (verified: ~24% on an unchanged page). When a
+        # baseline file doesn't exist yet, compare_screenshot() creates
+        # it and passes trivially; this step persists that CI-native
+        # baseline back to the repo so future runs have something real
+        # to compare against, instead of it vanishing with the runner.
+        if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          git checkout -B main
+          git add baselines/
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "Auto-regenerate visual regression baselines (Linux CI-native)"
+            git push origin main
+          fi
+
       - name: Fetch previous Allure history
         if: always()
         continue-on-error: true

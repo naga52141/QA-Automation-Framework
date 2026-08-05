@@ -1,11 +1,14 @@
 import pytest
 from utilities.visual_regression import compare_screenshot, wait_for_images_loaded
 
-# Baselines were captured with headless Chrome at a fixed 1920x1080
-# viewport (CI=true). Headless vs. headed Chrome render noticeably
-# differently (fonts especially) -- comparing a headed-mode screenshot
-# against these baselines produces false positives. Regenerate with
-# `CI=true pytest tests/test_visual_regression.py` if you need new ones.
+# Baselines live in baselines/ and are auto-generated + committed by the
+# main "Tests" GitHub Actions workflow the first time it runs without
+# them (see the "Commit auto-generated visual-regression baselines" step)
+# -- they're Linux-CI-native, at a fixed 1920x1080 headless viewport.
+# Don't regenerate them locally on macOS: a locally-captured baseline
+# produced large false-positive diffs against Linux's font rendering,
+# verified live. If you need to force new ones, delete baselines/*.png
+# and push to main; CI will recreate and commit them on that run.
 #
 # These tests are marked "visual" so cross-browser CI runs (Firefox/
 # Safari) can skip them with -m "not visual" instead of failing on

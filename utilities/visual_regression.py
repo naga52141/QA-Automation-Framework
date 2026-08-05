@@ -30,7 +30,7 @@ def wait_for_images_loaded(driver, selector=".inventory_item_img img", timeout=1
         time.sleep(0.2)
 
 
-def compare_screenshot(driver, name, threshold=0.08):
+def compare_screenshot(driver, name, threshold=0.05):
 
     os.makedirs(BASELINE_DIR, exist_ok=True)
     baseline_path = os.path.join(BASELINE_DIR, f"{name}.png")
@@ -45,13 +45,14 @@ def compare_screenshot(driver, name, threshold=0.08):
 
     baseline_image = Image.open(baseline_path).convert("RGB")
 
-    # Downscale before diffing rather than comparing at full resolution.
-    # Baselines are macOS-generated but CI runs on Linux, and different
-    # font-rasterization between platforms produces large full-res pixel
-    # diffs (~90%, verified) even when the page is genuinely unchanged.
-    # Shrinking both images first averages away that sub-pixel
-    # antialiasing noise while still catching real layout/content
-    # regressions (missing elements, broken images, wrong colors, etc).
+    # Baselines must come from the same platform doing the comparing --
+    # committed via CI's "commit auto-generated baselines" workflow step,
+    # not captured locally. A macOS-captured baseline produced ~24-90%
+    # false-positive diffs against Linux CI's font rendering even on an
+    # unchanged page (verified). Downscaling before diffing still helps
+    # absorb ordinary sub-pixel antialiasing jitter run-to-run, while
+    # still catching real layout/content regressions (missing elements,
+    # broken images, wrong colors, etc).
     baseline_small = baseline_image.resize(COMPARE_SIZE)
     current_small = current_image.resize(COMPARE_SIZE)
 
