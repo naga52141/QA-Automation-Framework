@@ -12,6 +12,7 @@ class InventoryPage(BasePage):
     PRODUCT_NAMES = (By.CLASS_NAME, "inventory_item_name")
     PRODUCT_PRICES = (By.CLASS_NAME, "inventory_item_price")
     SORT_DROPDOWN = (By.CLASS_NAME, "product_sort_container")
+    FOOTER_SOCIAL_LINKS = (By.CSS_SELECTOR, ".social a")
 
     MENU_BUTTON = (By.ID, "react-burger-menu-btn")
     ALL_ITEMS_LINK = (By.ID, "inventory_sidebar_link")
@@ -105,3 +106,7 @@ class InventoryPage(BasePage):
 
     def reset_app_state(self):
         self.click(self.RESET_APP_STATE_LINK)
+
+    def get_footer_social_links(self):
+        links = self.driver.find_elements(*self.FOOTER_SOCIAL_LINKS)
+        return [link.get_attribute("href") for link in links]
