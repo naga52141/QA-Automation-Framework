@@ -90,3 +90,53 @@ jobs:
         with:
           name: screenshots
           path: screenshots/
+
+  cross-browser:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            browser: firefox
+          - os: macos-latest
+            browser: safari
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up Firefox
+        if: matrix.browser == 'firefox'
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Enable Safari WebDriver
+        if: matrix.browser == 'safari'
+        run: sudo safaridriver --enable
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          mkdir -p reports screenshots
+          pytest -v -m "not visual" --browser=${{ matrix.browser }} --html=reports/report-${{ matrix.browser }}.html --self-contained-html
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ matrix.browser }}
+          path: reports/report-${{ matrix.browser }}.html
+
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ matrix.browser }}
+          path: screenshots/

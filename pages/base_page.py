@@ -20,6 +20,19 @@ class BasePage:
         ).click()
         self.logger.info(f"Clicked element: {locator}")
 
+    def click_via_js(self, locator):
+        # Selenium's native click() (W3C Actions API) has been observed to
+        # hang indefinitely on some elements under headless + Chrome mobile
+        # emulation specifically (verified live on the hamburger menu).
+        # Dispatching the click via JS sidesteps whatever geometry
+        # computation stalls, at the cost of skipping native clickability
+        # checks -- use only where that trade-off is needed.
+        element = self.wait.until(
+            EC.visibility_of_element_located(locator)
+        )
+        self.driver.execute_script("arguments[0].click();", element)
+        self.logger.info(f"Clicked (via JS) element: {locator}")
+
     def type(self, locator, text):
         element = self.wait.until(
             EC.visibility_of_element_located(locator)

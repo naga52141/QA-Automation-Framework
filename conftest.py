@@ -16,19 +16,88 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (e.g. performance_glitch_user)"
     )
+    config.addinivalue_line(
+        "markers", "visual: marks visual-regression tests (Chrome-baseline only)"
+    )
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--browser",
+        action="store",
+        default="chrome",
+        help="Browser to run tests in: chrome, firefox, edge, or safari",
+    )
 
 
 @pytest.fixture
-def driver():
+def driver(request):
+
+    browser = request.config.getoption("--browser")
+    headless = bool(os.getenv("CI"))
+
+    if browser == "firefox":
+        options = webdriver.FirefoxOptions()
+
+        if headless:
+            options.add_argument("--headless")
+            options.add_argument("--width=1920")
+            options.add_argument("--height=1080")
+
+        driver = webdriver.Firefox(options=options)
+
+        if not headless:
+            driver.maximize_window()
+
+    elif browser == "edge":
+        options = webdriver.EdgeOptions()
+
+        if headless:
+            options.add_argument("--headless=new")
+            options.add_argument("--window-size=1920,1080")
+        else:
+            options.add_argument("--start-maximized")
+
+        driver = webdriver.Edge(options=options)
+
+    elif browser == "safari":
+        driver = webdriver.Safari()
+        driver.maximize_window()
+
+    else:
+        options = webdriver.ChromeOptions()
+        options.add_argument("--incognito")
+
+        if headless:
+            options.add_argument("--headless=new")
+            options.add_argument("--window-size=1920,1080")
+        else:
+            options.add_argument("--start-maximized")
+
+        driver = webdriver.Chrome(options=options)
+
+    driver.get(BASE_URL)
+    yield driver
+
+    driver.quit()
+
+@pytest.fixture
+def mobile_driver():
+
+    mobile_emulation = {
+        "deviceMetrics": {"width": 390, "height": 844, "pixelRatio": 2.0},
+        "userAgent": (
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) "
+            "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 "
+            "Mobile/15E148 Safari/604.1"
+        ),
+    }
 
     options = webdriver.ChromeOptions()
-
-    options.add_argument("--start-maximized")
-    options.add_argument("--incognito")
+    options.add_experimental_option("mobileEmulation", mobile_emulation)
 
     if os.getenv("CI"):
         options.add_argument("--headless=new")
-        options.add_argument("--window-size=1920,1080")
 
     driver = webdriver.Chrome(options=options)
 
@@ -40,6 +109,22 @@ def driver():
 @pytest.fixture
 def login_page(driver):
     return LoginPage(driver)
+
+@pytest.fixture
+def mobile_login_page(mobile_driver):
+    return LoginPage(mobile_driver)
+
+@pytest.fixture
+def mobile_inventory_page(mobile_driver):
+
+    login = LoginPage(mobile_driver)
+
+    login.login(
+        "standard_user",
+        "secret_sauce"
+    )
+
+    return InventoryPage(mobile_driver)
 
 @pytest.fixture
 def inventory_page(driver):
@@ -77,7 +162,7 @@ def pytest_runtest_makereport(item, call):
 
     if report.when == "call" and report.failed:
 
-        driver = item.funcargs.get("driver")
+        driver = item.funcargs.get("driver") or item.funcargs.get("mobile_driver")
 
         if driver:
             os.makedirs("screenshots", exist_ok=True)
