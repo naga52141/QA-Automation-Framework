@@ -19,6 +19,10 @@ def driver():
     options.add_argument("--start-maximized")
     options.add_argument("--incognito")
 
+    if os.getenv("CI"):
+        options.add_argument("--headless=new")
+        options.add_argument("--window-size=1920,1080")
+
     driver = webdriver.Chrome(options=options)
 
     driver.get(BASE_URL)
