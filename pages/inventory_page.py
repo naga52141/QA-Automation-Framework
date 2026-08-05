@@ -7,6 +7,7 @@ class InventoryPage(BasePage):
     PRODUCTS_TITLE = (By.CLASS_NAME, "title")
     CART_ICON = (By.CLASS_NAME, "shopping_cart_link")
     CART_BADGE = (By.CLASS_NAME, "shopping_cart_badge")
+    PRODUCT_IMAGES = (By.CSS_SELECTOR, ".inventory_item_img img")
 
     BACKPACK_ADD_BUTTON = (
         By.ID,
@@ -35,3 +36,7 @@ class InventoryPage(BasePage):
 
     def get_cart_count(self):
         return self.get_text(self.CART_BADGE)
+
+    def get_product_image_sources(self):
+        images = self.driver.find_elements(*self.PRODUCT_IMAGES)
+        return [image.get_attribute("src") for image in images]

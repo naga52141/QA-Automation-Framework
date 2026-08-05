@@ -3,3 +3,4 @@ standard_user,secret_sauce,Pass
 locked_out_user,secret_sauce,Fail
 standard_user,wrong_password,Fail
 problem_user,secret_sauce,Pass
+performance_glitch_user,secret_sauce,Pass

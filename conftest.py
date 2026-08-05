@@ -11,6 +11,12 @@ from pages.checkout_page import CheckoutPage
 
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "slow: marks tests as slow (e.g. performance_glitch_user)"
+    )
+
+
 @pytest.fixture
 def driver():
 

@@ -30,6 +30,11 @@ class BasePage:
             EC.visibility_of_element_located(locator)
         ).text
 
+    def get_value(self, locator):
+        return self.wait.until(
+            EC.visibility_of_element_located(locator)
+        ).get_attribute("value")
+
     def is_displayed(self, locator):
         try:
             element = self.wait.until(
