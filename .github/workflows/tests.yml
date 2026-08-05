@@ -18,16 +18,32 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Set up Java (for Allure)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
       - name: Set up Chrome
         uses: browser-actions/setup-chrome@v1
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install Allure commandline
+        run: |
+          curl -sL -o allure.tgz https://github.com/allure-framework/allure2/releases/download/2.29.0/allure-2.29.0.tgz
+          tar -xzf allure.tgz
+          echo "$PWD/allure-2.29.0/bin" >> "$GITHUB_PATH"
+
       - name: Run tests
         run: |
-          mkdir -p reports screenshots
-          pytest -n auto -v --html=reports/report.html --self-contained-html
+          mkdir -p reports screenshots allure-results
+          pytest -n auto -v --html=reports/report.html --self-contained-html --alluredir=allure-results
+
+      - name: Generate Allure report
+        if: always()
+        run: allure generate allure-results -o allure-report --clean
 
       - name: Upload test report
         if: always()
@@ -35,6 +51,13 @@ jobs:
         with:
           name: test-report
           path: reports/report.html
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
 
       - name: Upload failure screenshots
         if: failure()

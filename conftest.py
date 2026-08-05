@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+import allure
 import pytest
 from selenium import webdriver
 from pages.login_page import LoginPage
@@ -85,3 +86,9 @@ def pytest_runtest_makereport(item, call):
             filename = f"screenshots/{item.name}_{timestamp}.png"
 
             driver.save_screenshot(filename)
+
+            allure.attach(
+                driver.get_screenshot_as_png(),
+                name="failure screenshot",
+                attachment_type=allure.attachment_type.PNG,
+            )

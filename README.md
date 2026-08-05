@@ -36,5 +36,15 @@ HTML report:
 pytest --html=reports/report.html
 ```
 
+Allure report (requires the [Allure commandline](https://allurereport.org/docs/install/) installed separately):
+
+```bash
+pytest --alluredir=allure-results
+allure serve allure-results
+```
+
+`allure serve` builds the report and opens it in your browser. Failed tests get the
+screenshot attached inline, in addition to it being saved to `screenshots/`.
+
 On failure, a screenshot is saved to `screenshots/`. Logs are written to `logs/automation.log`
 (or `logs/automation-<worker>.log` per worker when running with `-n auto`).
