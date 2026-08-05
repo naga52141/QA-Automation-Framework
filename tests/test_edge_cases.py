@@ -46,3 +46,24 @@ def test_performance_glitch_user_login_is_slow(login_page):
 
     assert login_page.is_login_successful()
     assert time.time() - start > 2
+
+
+def test_error_user_remove_from_cart_is_broken(login_page):
+
+    login_page.login("error_user", "secret_sauce")
+
+    inventory_page = InventoryPage(login_page.driver)
+    inventory_page.add_backpack_to_cart()
+    inventory_page.remove_backpack()
+
+    assert inventory_page.is_displayed(inventory_page.CART_BADGE)
+
+
+def test_visual_user_first_product_image_is_broken(login_page):
+
+    login_page.login("visual_user", "secret_sauce")
+
+    inventory_page = InventoryPage(login_page.driver)
+    image_sources = inventory_page.get_product_image_sources()
+
+    assert "sl-404" in image_sources[0]
