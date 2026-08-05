@@ -24,10 +24,17 @@ Requires Chrome and a matching chromedriver (managed automatically by Selenium M
 pytest -v
 ```
 
+In parallel (via `pytest-xdist`):
+
+```bash
+pytest -n auto -v
+```
+
 HTML report:
 
 ```bash
 pytest --html=reports/report.html
 ```
 
-On failure, a screenshot is saved to `screenshots/`.
+On failure, a screenshot is saved to `screenshots/`. Logs are written to `logs/automation.log`
+(or `logs/automation-<worker>.log` per worker when running with `-n auto`).

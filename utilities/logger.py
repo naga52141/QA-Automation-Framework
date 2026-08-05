@@ -2,7 +2,10 @@ import logging
 import os
 
 
-LOG_FILE = os.path.abspath("logs/automation.log")
+WORKER_ID = os.getenv("PYTEST_XDIST_WORKER")
+LOG_FILE = os.path.abspath(
+    f"logs/automation-{WORKER_ID}.log" if WORKER_ID else "logs/automation.log"
+)
 
 
 def get_logger():

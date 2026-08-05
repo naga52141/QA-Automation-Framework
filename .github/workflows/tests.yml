@@ -27,7 +27,7 @@ jobs:
       - name: Run tests
         run: |
           mkdir -p reports screenshots
-          pytest -v --html=reports/report.html --self-contained-html
+          pytest -n auto -v --html=reports/report.html --self-contained-html
 
       - name: Upload test report
         if: always()
