@@ -1,6 +1,5 @@
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
-from utilities.logger import get_logger
 
 
 class LoginPage(BasePage):
@@ -15,30 +14,17 @@ class LoginPage(BasePage):
 
     def __init__(self, driver):
         super().__init__(driver)
-        self.logger = get_logger()
 
     def login(self, username, password):
-
-        self.logger.info(
-            "Entering Username"
-        )
 
         self.type(
             self.USERNAME,
             username
         )
 
-        self.logger.info(
-            "Entering Password"
-        )
-
         self.type(
             self.PASSWORD,
             password
-        )
-
-        self.logger.info(
-            "Clicking Login Button"
         )
 
         self.click(
