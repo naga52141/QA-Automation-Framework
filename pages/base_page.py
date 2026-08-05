@@ -22,8 +22,10 @@ class BasePage:
 
     def click_via_js(self, locator):
         # Selenium's native click() (W3C Actions API) has been observed to
-        # hang indefinitely on some elements under headless + Chrome mobile
-        # emulation specifically (verified live on the hamburger menu).
+        # hang indefinitely under headless + Chrome mobile emulation --
+        # verified live on both the hamburger menu and the add-to-cart
+        # button, intermittently rather than on one specific element, so
+        # treat it as a risk for any click in that mode, not just one.
         # Dispatching the click via JS sidesteps whatever geometry
         # computation stalls, at the cost of skipping native clickability
         # checks -- use only where that trade-off is needed.

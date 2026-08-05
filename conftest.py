@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 
@@ -165,15 +166,30 @@ def pytest_runtest_makereport(item, call):
         driver = item.funcargs.get("driver") or item.funcargs.get("mobile_driver")
 
         if driver:
-            os.makedirs("screenshots", exist_ok=True)
+            # A test failure can leave the browser/session in a bad state,
+            # and screenshot capture over the WebDriver wire can then hang
+            # for the full 120s command timeout. Uncaught, that exception
+            # crashes the whole xdist session (seen locally and in CI on a
+            # completely fresh runner -- not a one-off fluke). Never let
+            # failure-reporting itself take down the test run.
+            try:
+                os.makedirs("screenshots", exist_ok=True)
 
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"screenshots/{item.name}_{timestamp}.png"
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"screenshots/{item.name}_{timestamp}.png"
 
-            driver.save_screenshot(filename)
+                screenshot_png = driver.get_screenshot_as_png()
 
-            allure.attach(
-                driver.get_screenshot_as_png(),
-                name="failure screenshot",
-                attachment_type=allure.attachment_type.PNG,
-            )
+                with open(filename, "wb") as screenshot_file:
+                    screenshot_file.write(screenshot_png)
+
+                allure.attach(
+                    screenshot_png,
+                    name="failure screenshot",
+                    attachment_type=allure.attachment_type.PNG,
+                )
+            except Exception as screenshot_error:
+                logging.getLogger().warning(
+                    f"Could not capture failure screenshot for "
+                    f"{item.nodeid}: {screenshot_error}"
+                )
