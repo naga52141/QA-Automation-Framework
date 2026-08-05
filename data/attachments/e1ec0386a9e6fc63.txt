@@ -1,0 +1,6 @@
+INFO     root:base_page.py:44 Typed into element: ('id', 'user-name')
+INFO     root:base_page.py:44 Typed into element: ('id', 'password')
+INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
+INFO     root:base_page.py:21 Clicked element: ('id', 'add-to-cart-sauce-labs-backpack')
+INFO     root:base_page.py:21 Clicked element: ('id', 'remove-sauce-labs-backpack')
+INFO     root:base_page.py:73 Element displayed (True): ('class name', 'shopping_cart_badge')

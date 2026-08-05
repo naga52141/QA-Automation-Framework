@@ -1,0 +1,5 @@
+INFO     root:base_page.py:44 Typed into element: ('id', 'user-name')
+INFO     root:base_page.py:44 Typed into element: ('id', 'password')
+INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
+INFO     root:base_page.py:21 Clicked element: ('id', 'react-burger-menu-btn')
+INFO     root:base_page.py:64 Read attribute 'href'='https://saucelabs.com/' from element: ('id', 'about_sidebar_link')

@@ -1,8 +1,0 @@
-INFO     root:base_page.py:42 Typed into element: ('id', 'user-name')
-INFO     root:base_page.py:42 Typed into element: ('id', 'password')
-INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
-INFO     root:inventory_page.py:90 Opened product detail at index: 0
-INFO     root:base_page.py:21 Clicked element: ('id', 'add-to-cart')
-INFO     root:base_page.py:71 Element displayed (True): ('class name', 'shopping_cart_badge')
-INFO     root:base_page.py:21 Clicked element: ('id', 'remove')
-INFO     root:base_page.py:74 Element not displayed (timeout): ('class name', 'shopping_cart_badge')

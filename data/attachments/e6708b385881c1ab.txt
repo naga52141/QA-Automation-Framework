@@ -1,7 +1,0 @@
-INFO     root:base_page.py:42 Typed into element: ('id', 'user-name')
-INFO     root:base_page.py:42 Typed into element: ('id', 'password')
-INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
-INFO     root:test_accessibility.py:13 a11y [moderate] landmark-one-main: Document should have one main landmark
-INFO     root:test_accessibility.py:13 a11y [moderate] page-has-heading-one: Page should contain a level-one heading
-INFO     root:test_accessibility.py:13 a11y [moderate] region: All page content should be contained by landmarks
-INFO     root:test_accessibility.py:13 a11y [critical] select-name: Select element must have an accessible name

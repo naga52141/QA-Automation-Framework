@@ -1,0 +1,1 @@
+INFO     root:base_page.py:64 Read attribute 'type'='password' from element: ('id', 'password')

@@ -1,5 +1,0 @@
-INFO     root:base_page.py:42 Typed into element: ('id', 'user-name')
-INFO     root:base_page.py:42 Typed into element: ('id', 'password')
-INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
-INFO     root:base_page.py:21 Clicked element: ('id', 'add-to-cart-sauce-labs-backpack')
-INFO     root:base_page.py:48 Read text '1' from element: ('class name', 'shopping_cart_badge')

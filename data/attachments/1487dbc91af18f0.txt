@@ -1,0 +1,4 @@
+INFO     root:base_page.py:44 Typed into element: ('id', 'user-name')
+INFO     root:base_page.py:44 Typed into element: ('id', 'password')
+INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
+INFO     root:base_page.py:50 Read text 'Epic sadface: Username and password do not match any user in this service' from element: ('css selector', "h3[data-test='error']")

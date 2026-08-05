@@ -1,0 +1,5 @@
+INFO     root:base_page.py:44 Typed into element: ('id', 'user-name')
+INFO     root:base_page.py:44 Typed into element: ('id', 'password')
+INFO     root:base_page.py:21 Clicked element: ('id', 'login-button')
+INFO     root:inventory_page.py:90 Opened product detail at index: 0
+INFO     root:base_page.py:50 Read text 'Sauce Labs Backpack' from element: ('class name', 'inventory_details_name')
