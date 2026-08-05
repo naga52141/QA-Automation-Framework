@@ -11,6 +11,8 @@ class CheckoutPage(BasePage):
     CANCEL_BUTTON = (By.ID, "cancel")
     ERROR_MESSAGE = (By.CSS_SELECTOR, "h3[data-test='error']")
 
+    SUMMARY_SUBTOTAL_LABEL = (By.CLASS_NAME, "summary_subtotal_label")
+    SUMMARY_TAX_LABEL = (By.CLASS_NAME, "summary_tax_label")
     SUMMARY_TOTAL_LABEL = (By.CLASS_NAME, "summary_total_label")
     FINISH_BUTTON = (By.ID, "finish")
 
@@ -29,8 +31,22 @@ class CheckoutPage(BasePage):
     def get_error_message(self):
         return self.get_text(self.ERROR_MESSAGE)
 
+    def cancel(self):
+        self.click(self.CANCEL_BUTTON)
+
     def get_total_text(self):
         return self.get_text(self.SUMMARY_TOTAL_LABEL)
+
+    def get_subtotal_amount(self):
+        text = self.get_text(self.SUMMARY_SUBTOTAL_LABEL)
+        return float(text.split("$")[1])
+
+    def get_tax_amount(self):
+        text = self.get_text(self.SUMMARY_TAX_LABEL)
+        return float(text.split("$")[1])
+
+    def get_total_amount(self):
+        return float(self.get_total_text().split("$")[1])
 
     def finish_checkout(self):
         self.click(self.FINISH_BUTTON)
@@ -40,3 +56,6 @@ class CheckoutPage(BasePage):
 
     def get_complete_message(self):
         return self.get_text(self.COMPLETE_HEADER)
+
+    def go_back_home(self):
+        self.click(self.BACK_HOME_BUTTON)

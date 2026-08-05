@@ -42,6 +42,13 @@ class BasePage:
         self.logger.info(f"Read value '{value}' from element: {locator}")
         return value
 
+    def get_attribute(self, locator, name):
+        value = self.wait.until(
+            EC.visibility_of_element_located(locator)
+        ).get_attribute(name)
+        self.logger.info(f"Read attribute '{name}'='{value}' from element: {locator}")
+        return value
+
     def is_displayed(self, locator):
         try:
             element = self.wait.until(
