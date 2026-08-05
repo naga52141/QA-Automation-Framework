@@ -5,7 +5,7 @@
 ![Selenium](https://img.shields.io/badge/selenium-4.44-43B02A)
 ![pytest](https://img.shields.io/badge/pytest-8.3-0A9EDC)
 
-A Selenium + pytest UI test automation framework built around the **Page Object Model**, testing the full user journey on [saucedemo.com](https://www.saucedemo.com/) — from login through checkout, including the site's deliberately broken test accounts, edge cases, and site-wide navigation.
+A Selenium + pytest UI test automation framework built around the **Page Object Model**, testing the full user journey on [saucedemo.com](https://www.saucedemo.com/) — functional coverage, cross-browser compatibility, visual regression, accessibility, mobile responsiveness, and passive security checks.
 
 **[Live Allure report →](https://naga52141.github.io/QA-Automation-Framework/)** — regenerated on every push to `main`, with pass-rate and duration trends across runs.
 
@@ -13,13 +13,18 @@ A Selenium + pytest UI test automation framework built around the **Page Object 
 
 ## Overview
 
-- **39 automated tests** covering login, inventory, product detail, cart, checkout, the hamburger menu, and the footer
+- **50 automated tests** across login, inventory, product detail, cart, checkout, the hamburger menu, and the footer
 - **Data-driven login testing** via CSV, exercising all 6 of saucedemo's seeded accounts
 - **Documented, live-verified bugs** on saucedemo's intentionally broken test accounts (`problem_user`, `error_user`, `visual_user`, `performance_glitch_user`) — each assertion was checked against the real site before being written, not assumed from documentation
-- **Parallel execution** via `pytest-xdist`, cutting a ~90s serial run to ~40s
-- **CI/CD** on GitHub Actions: headless Chrome, parallel test execution, dual reporting, and screenshot capture on failure
+- **Cross-browser**: Chrome, Firefox, and Edge verified locally; Safari supported via the same `--browser` flag
+- **Visual regression** against headless-mode baselines, with automatic pixel-diff artifacts on failure
+- **Accessibility** scans via axe-core, plus a keyboard-only navigation test
+- **Mobile viewport testing** via Chrome device emulation
+- **Passive security checks** (HTTPS enforcement, password masking, response headers) — no exploit attempts against this third-party site
+- **Parallel execution** via `pytest-xdist`
+- **CI/CD** on GitHub Actions: a main job (Chrome, parallel, dual reporting) plus a cross-browser matrix job (Firefox on Linux, Safari on macOS)
 - **Dual reporting**: `pytest-html` for a quick local summary, and Allure for step-by-step detail with screenshots attached inline and cross-run trend graphs
-- **Centralized logging**: every click, type, and read across every page object is logged automatically, not just the login flow
+- **Centralized logging**: every click, type, and read across every page object is logged automatically
 
 ## Tech Stack
 
@@ -29,6 +34,9 @@ A Selenium + pytest UI test automation framework built around the **Page Object 
 | Test runner | pytest |
 | Parallelization | pytest-xdist |
 | Reporting | pytest-html, Allure |
+| Visual regression | Pillow, numpy |
+| Accessibility | axe-selenium-python (axe-core) |
+| Load testing | Locust (opt-in, separate from the test suite) |
 | CI/CD | GitHub Actions |
 | Test data | CSV |
 
@@ -36,10 +44,12 @@ A Selenium + pytest UI test automation framework built around the **Page Object 
 
 ```
 QA-Automation-Framework/
-├── .github/workflows/tests.yml   CI pipeline
-├── conftest.py                   Fixtures, failure-screenshot hook, Allure attachment
+├── .github/workflows/tests.yml   CI pipeline (main job + cross-browser matrix)
+├── conftest.py                   Fixtures (incl. --browser, mobile), failure-screenshot
+│                                  hook with Allure attachment
 ├── pages/                        Page Object Model
-│   ├── base_page.py              Shared click/type/read primitives + logging
+│   ├── base_page.py              Shared click/type/read primitives, logging,
+│   │                              click_via_js() for mobile-emulation edge case
 │   ├── login_page.py
 │   ├── inventory_page.py         Sort, add/remove, hamburger menu, footer
 │   ├── product_detail_page.py
@@ -53,13 +63,21 @@ QA-Automation-Framework/
 │   ├── test_checkout.py          Validation, cancel flows, exact total math
 │   ├── test_menu.py              Logout, reset app state, about, all items
 │   ├── test_footer.py
-│   └── test_edge_cases.py        Verified bugs on the broken test accounts
+│   ├── test_edge_cases.py        Verified bugs on the broken test accounts
+│   ├── test_visual_regression.py Baseline screenshot diffing
+│   ├── test_accessibility.py     axe-core scans, keyboard navigation
+│   ├── test_responsive.py        Mobile viewport emulation
+│   └── test_security.py          Passive HTTPS/header/masking checks
 ├── utilities/
 │   ├── config.py
 │   ├── csv_reader.py
-│   └── logger.py                 xdist-safe, per-worker log files
+│   ├── logger.py                 xdist-safe, per-worker log files
+│   └── visual_regression.py      Screenshot baseline comparison
+├── baselines/                    Reference screenshots (headless-mode Chrome)
+├── performance/locustfile.py     Load test, manual/opt-in (see below)
 ├── testdata/login.csv
-└── requirements.txt
+├── requirements.txt              Test suite dependencies
+└── requirements-perf.txt         Locust only, not needed to run the test suite
 ```
 
 ## Getting Started
@@ -68,7 +86,8 @@ QA-Automation-Framework/
 pip install -r requirements.txt
 ```
 
-Requires Chrome; chromedriver is managed automatically by Selenium Manager.
+Requires Chrome; chromedriver is managed automatically by Selenium Manager. Firefox/Edge
+need their respective browsers installed for `--browser firefox` / `--browser edge`.
 
 ## Running Tests
 
@@ -82,10 +101,25 @@ In parallel:
 pytest -n auto -v
 ```
 
+Against a specific browser (`chrome` is the default):
+
+```bash
+pytest -v --browser=firefox
+pytest -v --browser=edge
+pytest -v --browser=safari   # requires enabling Safari's "Allow Remote Automation" once
+```
+
 Excluding the slow test (`performance_glitch_user`'s login):
 
 ```bash
 pytest -m "not slow" -v
+```
+
+Excluding visual-regression tests (needed when running against a browser other than
+Chrome — the baselines are Chrome-specific and would false-fail otherwise):
+
+```bash
+pytest -m "not visual" -v --browser=firefox
 ```
 
 ## Test Reports
@@ -111,14 +145,44 @@ On failure, a screenshot is also saved to `screenshots/`. Logs are written to
 
 ## CI/CD
 
-Every push and pull request to `main` triggers a GitHub Actions workflow that:
+Every push and pull request to `main` triggers a GitHub Actions workflow with two jobs:
 
+**`test`** (the canonical pipeline):
 1. Runs the full suite headlessly, in parallel, against Chrome
 2. Generates both an HTML and an Allure report
 3. On pushes to `main`, publishes the Allure report to GitHub Pages, carrying forward
    history from the previous run so trend graphs build up over time
 4. Uploads the HTML report, Allure report, and any failure screenshots as workflow
    artifacts
+
+**`cross-browser`** (a matrix job, runs independently):
+- Firefox on `ubuntu-latest`
+- Safari on `macos-latest` (with `sudo safaridriver --enable`)
+- Skips visual-regression tests (`-m "not visual"`) since those baselines are
+  Chrome-specific
+
+## Performance / Load Testing
+
+`performance/locustfile.py` load-tests saucedemo.com's `/` endpoint — the only real
+server route (verified with `curl`; client-side routes like `/inventory.html` return
+404 on a direct GET, since routing happens in the browser after JS loads). This is
+**not** part of the pytest suite or CI: saucedemo.com is a shared public demo site used
+by lots of people learning QA, so this stays a manual, low-concurrency tool rather than
+something that runs automatically on every push.
+
+```bash
+pip install -r requirements-perf.txt
+locust -f performance/locustfile.py --host https://www.saucedemo.com
+```
+
+Then open `http://localhost:8089` for the web UI, or run headless with modest numbers:
+
+```bash
+locust -f performance/locustfile.py --host https://www.saucedemo.com \
+  --headless -u 5 -r 1 -t 30s
+```
+
+Please keep concurrency low out of courtesy to the shared site.
 
 ## Test Coverage
 
@@ -132,6 +196,26 @@ Every push and pull request to `main` triggers a GitHub Actions workflow that:
 | Menu | Logout, reset app state, all items, about link |
 | Footer | Social link targets |
 | Edge cases | `problem_user` (broken images, mangled checkout fields), `error_user` (broken remove-from-cart), `visual_user` (broken product image), `performance_glitch_user` (slow login) |
+| Cross-browser | Chrome, Firefox, Edge (verified locally); Safari supported, needs manual WebDriver enablement |
+| Visual regression | Login and inventory pages, against headless-mode Chrome baselines |
+| Accessibility | axe-core scans on login/inventory, keyboard-only login |
+| Mobile | Login, add-to-cart, and hamburger menu on an emulated mobile viewport |
+| Security | HTTPS redirect, password field masking, response security headers |
 
 The edge-case tests target saucedemo's intentionally broken demo accounts, seeded by the
 site itself for exactly this kind of testing — not bugs in this framework.
+
+## Known Issues (documented via `xfail`)
+
+Two tests are expected to fail (`strict=True`, so if saucedemo ever fixes these, the
+test suite will flag it as an unexpected pass):
+
+- **`test_inventory_page_accessibility`** — the inventory page's sort `<select>` has no
+  accessible name (axe-core rule `select-name`, critical impact). Verified live.
+- **`test_security_headers_present`** — saucedemo.com (static GitHub Pages hosting)
+  sends none of the standard security response headers (CSP, X-Frame-Options, HSTS,
+  X-Content-Type-Options). Verified live via `curl -I`.
+
+Both are real characteristics of the third-party site this framework tests, not bugs in
+this framework, and not something fixable from here — hence `xfail` rather than either
+hiding them or leaving the suite permanently red.
