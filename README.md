@@ -220,4 +220,8 @@ Both are real characteristics of the third-party site this framework tests, not 
 this framework, and not something fixable from here — hence `xfail` rather than either
 hiding them or leaving the suite permanently red.
 
+## License
+
+[MIT](LICENSE)
+
  https://claude.ai/code/artifact/cd1e1e5d-f4ec-4844-a45d-940d3601830c
