@@ -116,7 +116,7 @@ pytest -m "not slow" -v
 ```
 
 Excluding visual-regression tests (needed when running against a browser other than
-Chrome — the baselines are Chrome-specific and would false-fail otherwise):
+Chrome — the baselines are Linux/Chrome CI-specific and would false-fail otherwise):
 
 ```bash
 pytest -m "not visual" -v --browser=firefox
@@ -159,7 +159,7 @@ Every push and pull request to `main` triggers a GitHub Actions workflow with tw
 - Firefox on `ubuntu-latest`
 - Safari on `macos-latest` (with `sudo safaridriver --enable`)
 - Skips visual-regression tests (`-m "not visual"`) since those baselines are
-  Chrome-specific
+  captured by the main job's Linux/Chrome run, not this matrix
 
 ## Performance / Load Testing
 
