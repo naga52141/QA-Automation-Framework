@@ -30,6 +30,21 @@ def wait_for_images_loaded(driver, selector=".inventory_item_img img", timeout=1
         time.sleep(0.2)
 
 
+def wait_for_fonts_loaded(driver, timeout=10):
+    # saucedemo loads custom webfonts (DM Mono, DM Sans) asynchronously --
+    # verified live: document.fonts.status reads "loading" immediately
+    # after page load. A screenshot taken before they finish shows
+    # fallback-font text metrics, producing a small but real diff
+    # (~5.4%, seen in CI) unrelated to any actual change. Resolves fast
+    # in practice (~0.1s) but is a real race, not paranoia.
+    deadline = time.time() + timeout
+
+    while time.time() < deadline:
+        if driver.execute_script("return document.fonts.status === 'loaded';"):
+            return
+        time.sleep(0.1)
+
+
 def compare_screenshot(driver, name, threshold=0.05):
 
     os.makedirs(BASELINE_DIR, exist_ok=True)

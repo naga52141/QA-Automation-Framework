@@ -1,5 +1,9 @@
 import pytest
-from utilities.visual_regression import compare_screenshot, wait_for_images_loaded
+from utilities.visual_regression import (
+    compare_screenshot,
+    wait_for_fonts_loaded,
+    wait_for_images_loaded,
+)
 
 # Baselines live in baselines/ and are auto-generated + committed by the
 # main "Tests" GitHub Actions workflow the first time it runs without
@@ -19,6 +23,7 @@ pytestmark = pytest.mark.visual
 def test_login_page_visual(login_page):
 
     login_page.driver.set_window_size(1920, 1080)
+    wait_for_fonts_loaded(login_page.driver)
 
     passed, diff_ratio = compare_screenshot(login_page.driver, "login_page")
 
@@ -28,6 +33,7 @@ def test_login_page_visual(login_page):
 def test_inventory_page_visual(inventory_page):
 
     inventory_page.driver.set_window_size(1920, 1080)
+    wait_for_fonts_loaded(inventory_page.driver)
     wait_for_images_loaded(inventory_page.driver)
 
     passed, diff_ratio = compare_screenshot(inventory_page.driver, "inventory_page")
